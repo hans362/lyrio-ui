@@ -1,0 +1,12 @@
+{
+    "version": 2,
+    "routes": [
+        {
+            "src": "/api/(.*)",
+            "headers": {
+                "cache-control": "public, max-age=600"
+            },
+            "dest": "https://api-v1.0vv0.top/api/$1"
+        }
+    ]
+}
