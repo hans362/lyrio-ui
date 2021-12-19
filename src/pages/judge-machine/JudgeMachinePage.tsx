@@ -45,7 +45,7 @@ let JudgeMachinePage: React.FC<JudgeMachinePageProps> = props => {
   const navigation = useNavigationChecked();
 
   useEffect(() => {
-    appState.enterNewPage(_(".title"), null, false);
+    appState.enterNewPage(_(".title"), null, true);
   }, [appState.locale]);
 
   function getCpu(judgeClient: ApiTypes.JudgeClientInfoDto) {
