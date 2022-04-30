@@ -1,28 +1,14 @@
-declare module "*.module.less" {
-  const classes: { [key: string]: string };
-  export default classes;
-}
+/// <reference types="vite/client" />
+/// <reference types="vite-plugin-compile-time/client" />
 
-declare module "*.url.css" {
-  const url: string;
-  export default url;
-}
-
-declare module "*.svg" {
-  const src: string;
-  export default src;
-}
-
-declare module "*.wasm" {
-  const url: string;
-  export default url;
-}
+// Extending Window object
 
 interface Window {
   publicPath: string;
   apiEndpoint: string;
   appLogo: string;
   gravatarCdn: string;
+  ghAvatarCdn: string;
   twemojiCdn: string;
   appVersion: {
     hash?: string;
@@ -36,5 +22,3 @@ interface Window {
   getSessionInfoCallback: (sessionInfo: ApiTypes.GetSessionInfoResponseDto) => void;
   refreshSession: (tokan: string) => void;
 }
-
-/// <reference types="react-scripts" />

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ImageProps, Image } from "semantic-ui-react";
-import lodashIsEqual from "lodash.isequal";
+import lodash from "lodash";
 
 import defaultAvatar from "@/assets/default-avatar.svg";
 import { appState } from "@/appState";
@@ -30,7 +30,7 @@ function getAvatarUrl(avatar: ApiTypes.UserAvatarDto, size: number) {
       else sizeParam = 5;
       return `https://q1.qlogo.cn/g?b=qq&nk=${avatar.key}&s=${sizeParam}`;
     case "github":
-      return `https://github.com/${avatar.key}.png?size=${size}`;
+      return `${ensureTrailingSlash(window.ghAvatarCdn || "https://github.com")}${avatar.key}.png?size=${size}`;
   }
 }
 
@@ -75,4 +75,4 @@ const UserAvatar: React.FC<UserAvatarProps> = props => {
   );
 };
 
-export default React.memo(UserAvatar, lodashIsEqual);
+export default React.memo(UserAvatar, lodash.isEqual);

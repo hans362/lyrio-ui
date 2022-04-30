@@ -9,7 +9,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "experimentalDecorators": true,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
@@ -25,8 +25,10 @@
     "paths": {
       "@/*": ["src/*"],
       "semantic-ui-css": ["node_modules/fomantic-ui-css"],
-      "mobx-react": ["node_modules/mobx-react-lite"]
-    },
+      "mobx-react": ["node_modules/mobx-react-lite"],
+      "lodash": ["node_modules/lodash-es"],
+      "markdown-it": ["node_modules/@esm-bundle/markdown-it"]
+    }
   },
   "include": [
     "src"
