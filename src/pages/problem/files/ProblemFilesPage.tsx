@@ -15,8 +15,7 @@ import {
   Ref
 } from "semantic-ui-react";
 import { v4 as uuid } from "uuid";
-import lodash from "lodash";
-import { WritableStream } from "web-streams-polyfill/ponyfill/es6";
+import isEqual from "lodash/isEqual";
 import streamsaver from "streamsaver";
 import pAll from "p-all";
 import { useDebounce } from "use-debounce";
@@ -43,7 +42,9 @@ import { Localizer, makeToBeLocalizedText } from "@/locales";
 import { EmojiRenderer } from "@/components/EmojiRenderer";
 
 // Firefox have no WritableStream
-if (!window.WritableStream) (streamsaver as any).WritableStream = WritableStream;
+if (!window.WritableStream || true) {
+  (streamsaver as any).WritableStream = (await import("web-streams-polyfill/ponyfill/es6")).WritableStream;
+}
 if (window.apiEndpoint.toLowerCase().startsWith("https://")) {
   (streamsaver as any).mitm = `${window.apiEndpoint}api/cors/streamsaver/mitm.html`;
 }
@@ -160,7 +161,7 @@ async function fetchData(idType: "id" | "displayId", id: number) {
 
 interface FileUploadInfo {
   file: File;
-  progressType: "Waiting" | "Hashing" | "Uploading" | "Requesting" | "Error" | "Cancelled";
+  progressType: "Waiting" | "Uploading" | "Retrying" | "Requesting" | "Error" | "Cancelled";
   cancel?: () => void;
   progress?: number;
   error?: string;
@@ -227,15 +228,6 @@ let FileTableRow: React.FC<FileTableRowProps> = props => {
               {_(".progress_waiting")}
             </>
           );
-        case "Hashing":
-          return (
-            <>
-              <Icon name="hashtag" />
-              {_(".progress_hashing", {
-                progress: formatProgress(debouncedUploadProgress)
-              })}
-            </>
-          );
         case "Uploading":
           return (
             <>
@@ -243,6 +235,13 @@ let FileTableRow: React.FC<FileTableRowProps> = props => {
               {_(".progress_uploading", {
                 progress: formatProgress(debouncedUploadProgress)
               })}
+            </>
+          );
+        case "Retrying":
+          return (
+            <>
+              <Icon name="redo" />
+              {_(".progress_retrying")}
             </>
           );
         case "Requesting":
@@ -403,7 +402,7 @@ let FileTable: React.FC<FileTableProps> = props => {
       if (fileUuids.includes(fileUuid)) newSelectedFiles.add(fileUuid);
     }
 
-    if (!lodash.isEqual(selectedFiles, newSelectedFiles)) setSelectedFiles(newSelectedFiles);
+    if (!isEqual(selectedFiles, newSelectedFiles)) setSelectedFiles(newSelectedFiles);
   }, [props.files]);
 
   function onSelectAll(checked: boolean) {

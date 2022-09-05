@@ -1,5 +1,4 @@
 import React from "react";
-import ReactDOM from "react-dom";
 import "./themes";
 import "./index.less";
 import "./misc/fonts";
@@ -32,11 +31,11 @@ class ErrorBoundary extends React.Component<{}, { hasError: boolean }> {
 
 initApp()
   .then(() => {
-    ReactDOM.render(
+    const { createRoot } = window["ReactDOM"] as unknown as typeof import("react-dom/client");
+    createRoot(document.getElementById("root")).render(
       <ErrorBoundary>
         <App />
-      </ErrorBoundary>,
-      document.getElementById("root")
+      </ErrorBoundary>
     );
   })
   .catch(err => {

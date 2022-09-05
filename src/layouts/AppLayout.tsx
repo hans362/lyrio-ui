@@ -3,9 +3,8 @@ import { observer } from "mobx-react";
 import { useLoadingRoute } from "react-navi";
 import { Menu, Button, Dropdown, Container, Icon, Segment, Sidebar, SemanticICONS } from "semantic-ui-react";
 
-import "semantic-ui-css/semantic.css";
-import "noty/lib/noty.css";
-import "noty/lib/themes/semanticui.css";
+import "fomantic-ui-css/components/site.css";
+import "noty/src/themes/semanticui.scss";
 
 import style from "./AppLayout.module.less";
 
@@ -77,7 +76,7 @@ let AppLayout: React.FC = props => {
     ...(appState.serverPreference.misc.legacyContestsEntryUrl
       ? {
           contests: {
-            icon: "calendar",
+            icon: "dove",
             text: ".navbar.contests",
             url: appState.serverPreference.misc.legacyContestsEntryUrl
           }

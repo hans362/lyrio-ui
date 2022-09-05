@@ -577,6 +577,7 @@ declare namespace ApiTypes {
     appLogo: string;
     appLogoForTheme: {};
     googleAnalyticsId: string;
+    plausibleApiEndpoint: string;
     gravatarCdn: string;
     redirectLegacyUrls: boolean;
     legacyContestsEntryUrl: boolean;
@@ -1262,7 +1263,7 @@ declare namespace ApiTypes {
     codeFontSize?: number;
     codeLineHeight?: number;
     codeFontLigatures?: boolean;
-    markdownEditorFont?: string;
+    markdownEditorFont?: "content" | "code";
   }
   export interface UserPreferenceLocaleDto {
     system?: "en_US" | "zh_CN" | "ja_JP";

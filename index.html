@@ -36,15 +36,15 @@ function safeStringify(object) {
 
   <script>
     window.appVersion = <%- safeStringify({
-      hash: gitRepoInfo.abbreviatedSha,
-      date: gitRepoInfo.committerDate
+      hash: gitCommitInfo.hash.slice(0, 10),
+      date: gitCommitInfo.date
     }) %>;
 
-    (function () {
-      function normalizePath(path) {
+    (() => {
+      var normalizePath = (path) => {
         while (path.endsWith("/")) path = path.slice(0, -1);
         return path + "/";
-      }
+      };
 
       // This is used for specify public path dynamicly for each request. Useful when you have multiple CDN servers.
       // Use ngx_http_sub_module in your server to replace the "__public_path__" placeholder with your CDN path.
@@ -112,23 +112,36 @@ function safeStringify(object) {
       }
       window.ghAvatarCdn = ghAvatarCdn;
 
-      // Specify the Twemoji CDN in the same way.
-      var twemojiCdn;
+      // Specify the CDNJS mirror in the same way.
+      var cdnjs;
       try {
-        twemojiCdn = __twemoji__;
+        cdnjs = __cdnjs__;
       } catch (e) {
-        twemojiCdn = null;
+        cdnjs = "https://cdnjs.cloudflare.com/ajax/libs";
       }
-      window.twemojiCdn = twemojiCdn;
+      window.cdnjs = cdnjs;
 
-      function addLinkTag(rel, href) {
+      var addLinkTag = (rel, href) => {
         var link = document.createElement("link");
         link.rel = rel;
         link.href = href;
         document.head.appendChild(link);
-      }
+      };
 
       addLinkTag("icon", faviconUrl);
+
+      <%
+      for (const [packageName, , cssFiles] of externalPackages) {
+        for (const css of (Array.isArray(cssFiles) ? cssFiles : [cssFiles]).filter(f => f)) {
+      %>
+          addLinkTag(
+            "stylesheet",
+            window.cdnjs + <%- safeStringify(`/${packageName}/${externalPackageVersions[packageName]}/${css}`) %>
+          );
+      <%
+        }
+      }
+      %>
 
       // __add_link_tags__
     })();
@@ -272,7 +285,7 @@ function safeStringify(object) {
 
   <!-- Handle script errors -->
   <script>
-    function fatalError(messages, stack) {
+    var fatalError = (messages, stack) => {
       var error = document.getElementById("error");
       if (error.style.display === "") return;
 
@@ -300,18 +313,18 @@ function safeStringify(object) {
       }
 
       error.style.display = "";
-    }
+    };
 
-    function handleLoadingError() {
+    var handleLoadingError = () => {
       fatalError([
         "There's an error loading the application. Please check your network connection.",
         "加载应用程序时出现错误，请检查您的网络连接。"
       ]);
-    }
+    };
 
     // Get session and server info
-    function refreshSession(token) {
-      function getSessionToken() {
+    var refreshSession = (token) => {
+      var getSessionToken = () => {
         try {
           var appState = JSON.parse(localStorage["appState"]);
           if (appState.logout) {
@@ -322,7 +335,7 @@ function safeStringify(object) {
         } catch (e) {
           return null;
         }
-      }
+      };
 
       if (!token) token = getSessionToken() || "";
       var script = document.createElement("script");
@@ -330,7 +343,7 @@ function safeStringify(object) {
       script.onerror = handleLoadingError;
       script.src = window.apiEndpoint + "api/auth/getSessionInfo?jsonp=1&token=" + encodeURIComponent(token);
       document.head.appendChild(script);
-    }
+    };
     refreshSession();
   </script>
 </head>
@@ -345,15 +358,15 @@ function safeStringify(object) {
     <div id="error-footer">
       <code>
         Powered by Lyrio<br>
-        (version <%= gitRepoInfo.abbreviatedSha %>)
+        (version <%= gitCommitInfo.hash.slice(0, 10) %>)
       </code>
     </div>
   </div>
 
   <!-- Dynamicly generate <script> tags -->
   <script>
-    (function () {
-      function addScriptTag(attributes, code) {
+    (() => {
+      var addScriptTag = (attributes, code) => {
         var script = document.createElement("script");
         if (attributes) for (var key in attributes) script.setAttribute(key, attributes[key]);
 
@@ -362,14 +375,14 @@ function safeStringify(object) {
         if (code) script.src = "data:text/javascript," + code;
 
         document.body.appendChild(script);
-      }
+      };
 
       // xdomain.js
       // Check for cross-origin API endpoint.
       var apiEndpoint = window.apiEndpoint;
-      function isCrossOrigin(url) {
+      var isCrossOrigin = (url) => {
         return new URL(url, location).origin !== location.origin;
-      }
+      };
       if (isCrossOrigin(apiEndpoint)) {
         // Load xdomain library from API host.
         var apiHostCorsPath = apiEndpoint + "api/cors/";
@@ -378,6 +391,20 @@ function safeStringify(object) {
           "data-slave": apiHostCorsPath + "xdomain.html"
         }, null);
       }
+
+      <%
+      for (const [packageName, scripts] of externalPackages) {
+        for (const scriptName of (Array.isArray(scripts) ? scripts : [scripts]).filter(f => f)) {
+      %>
+          addScriptTag({
+            src: window.cdnjs + <%-
+              safeStringify(`/${packageName}/${externalPackageVersions[packageName]}/${scriptName}`)
+            %>
+          });
+      <%
+        }
+      }
+      %>
 
       // __add_script_tags__
     })();
